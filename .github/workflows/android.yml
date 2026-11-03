@@ -6,8 +6,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: iron-pulse-android
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: iron-pulse-android.zip
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -15,11 +21,14 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - run: unzip -q iron-pulse-android.zip
+      - run: unzip -q ../iron-pulse-android.zip -d ..
+        working-directory: .
       - run: npm install
-        working-directory: iron-pulse-android
-      - run: npm run android:add
-        working-directory: iron-pulse-android
+      - run: npm run prepare:web
+      - run: npx cap add android
+      - run: node scripts/patch-android.mjs
+      - run: npx capacitor-assets generate --android
+      - run: npx cap sync android
       - run: ./gradlew assembleDebug
         working-directory: iron-pulse-android/android
       - uses: actions/upload-artifact@v4
