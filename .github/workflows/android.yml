@@ -15,7 +15,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
       - run: unzip -q iron-pulse-android.zip
       - run: npm install
         working-directory: iron-pulse-android
