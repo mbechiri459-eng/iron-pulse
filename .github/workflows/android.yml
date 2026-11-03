@@ -1,0 +1,29 @@
+name: Android APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: unzip -q iron-pulse-android.zip
+      - run: npm install
+        working-directory: iron-pulse-android
+      - run: npm run android:add
+        working-directory: iron-pulse-android
+      - run: ./gradlew assembleDebug
+        working-directory: iron-pulse-android/android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iron-pulse-debug-apk
+          path: iron-pulse-android/android/app/build/outputs/apk/debug/app-debug.apk
